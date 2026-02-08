@@ -28,12 +28,15 @@ public class MatriculaResource {
     CursoRepository cursoRepository;
 
     @GET
+    @Path("")
+    @RolesAllowed("admin")
     public List<Matricula> listar() {
         return Matricula.listAll();
     }
 
     @POST
     @RolesAllowed("admin")
+    @Path("")
     @Transactional
     public Response matricular(MatriculaRepresentation dto) {
         if (dto.estudianteId == null || dto.cursoId == null) {

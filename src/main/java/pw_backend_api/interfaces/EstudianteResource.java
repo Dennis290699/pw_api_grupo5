@@ -29,6 +29,13 @@ public class EstudianteResource {
     }
 
     @GET
+    @Path("/reporte")
+    @RolesAllowed("admin")
+    public Response reporte() {
+        return Response.ok(estudianteService.listarTodos()).build();
+    }
+
+    @GET
     @Path("/{id}")
     @RolesAllowed("admin")
     public Response listarPorId(@PathParam("id") Integer id) {

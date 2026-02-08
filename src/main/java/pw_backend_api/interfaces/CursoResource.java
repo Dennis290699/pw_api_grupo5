@@ -31,6 +31,13 @@ public class CursoResource {
     }
 
     @GET
+    @Path("/reporte")
+    @RolesAllowed("admin")
+    public Response reporte() {
+        return Response.ok(cursoService.listarTodos()).build();
+    }
+
+    @GET
     @Path("/{id}")
     @RolesAllowed("admin")
     public Response buscarPorId(@PathParam("id") Integer id) {
