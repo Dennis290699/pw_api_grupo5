@@ -29,4 +29,6 @@ public class Matricula extends PanacheEntityBase {
     public Curso curso;
 
     public LocalDate fecha;
+
+    public String estado;
 }

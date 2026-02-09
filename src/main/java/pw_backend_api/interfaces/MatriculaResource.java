@@ -54,6 +54,7 @@ public class MatriculaResource {
         matricula.estudiante = estudiante;
         matricula.curso = curso;
         matricula.fecha = LocalDate.now();
+        matricula.estado = "ACTIVA";
 
         matricula.persist();
 
@@ -65,12 +66,15 @@ public class MatriculaResource {
     @RolesAllowed("admin")
     @Transactional
     public Response cancelarMatricula(@PathParam("id") Integer id) {
-        boolean deleted = Matricula.deleteById(id);
+        Matricula matricula = Matricula.findById(id);
 
-        if (!deleted) {
+        if (matricula == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return Response.noContent().build();
+
+        matricula.estado = "ANULADA";
+
+        return Response.ok(matricula).build();
     }
 
     @GET
