@@ -1,6 +1,7 @@
 package pw_backend_api.application.representation;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class EstudianteRepresentation {
     public Integer id;
@@ -9,6 +10,21 @@ public class EstudianteRepresentation {
     public String carrera;
     public LocalDate fechaNacimiento;
     public String telefono;
+
+    public List<Link> links;
+
+    public static class Link {
+        public String rel;
+        public String href;
+
+        public Link(String rel, String href) {
+            this.rel = rel;
+            this.href = href;
+        }
+
+        public Link() {
+        }
+    }
 
     public Integer getId() {
         return id;

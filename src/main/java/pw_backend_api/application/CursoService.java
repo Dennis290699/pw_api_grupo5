@@ -8,11 +8,15 @@ import jakarta.transaction.Transactional;
 import pw_backend_api.application.representation.CursoRepresentation;
 import pw_backend_api.domain.Curso;
 import pw_backend_api.infraestructure.CursoRepository;
+import pw_backend_api.infraestructure.MatriculaRepository;
 
 @ApplicationScoped
 public class CursoService {
     @Inject
     CursoRepository cursoRepository;
+
+    @Inject
+    MatriculaRepository matriculaRepository;
 
     public CursoRepresentation mapperToRep(Curso curso) {
         CursoRepresentation curs = new CursoRepresentation();
@@ -70,6 +74,11 @@ public class CursoService {
 
     @Transactional
     public void eliminarCurso(Integer id) {
+        if (matriculaRepository.count("curso.id", id) > 0) {
+            throw new jakarta.ws.rs.WebApplicationException(
+                    "No se puede eliminar el curso porque tiene matrículas asociadas.",
+                    jakarta.ws.rs.core.Response.Status.CONFLICT);
+        }
         this.cursoRepository.deleteById(id.longValue());
     }
 

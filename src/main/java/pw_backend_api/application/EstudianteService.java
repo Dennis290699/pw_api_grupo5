@@ -8,11 +8,15 @@ import jakarta.transaction.Transactional;
 import pw_backend_api.application.representation.EstudianteRepresentation;
 import pw_backend_api.domain.Estudiante;
 import pw_backend_api.infraestructure.EstudianteRepository;
+import pw_backend_api.infraestructure.MatriculaRepository;
 
 @ApplicationScoped
 public class EstudianteService {
     @Inject
     public EstudianteRepository estudianteRepository;
+
+    @Inject
+    MatriculaRepository matriculaRepository;
 
     public EstudianteRepresentation mapperToER(Estudiante estudiante) {
         EstudianteRepresentation er = new EstudianteRepresentation();
@@ -22,6 +26,10 @@ public class EstudianteService {
         er.carrera = estudiante.carrera;
         er.fechaNacimiento = estudiante.fechaNacimiento;
         er.telefono = estudiante.telefono;
+
+        er.links = new java.util.ArrayList<>();
+        er.links.add(new EstudianteRepresentation.Link("self", "http://localhost:8081/estudiantes/" + estudiante.id));
+        er.links.add(new EstudianteRepresentation.Link("parent", "http://localhost:8081/estudiantes"));
 
         return er;
     }
@@ -58,6 +66,11 @@ public class EstudianteService {
 
     @Transactional
     public void eliminarEstudiante(Integer id) {
+        if (matriculaRepository.count("estudiante.id", id) > 0) {
+            throw new jakarta.ws.rs.WebApplicationException(
+                    "No se puede eliminar el estudiante porque tiene matrículas asociadas.",
+                    jakarta.ws.rs.core.Response.Status.CONFLICT);
+        }
         this.estudianteRepository.deleteById(id.longValue());
     }
 }

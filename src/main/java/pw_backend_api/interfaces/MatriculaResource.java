@@ -6,12 +6,9 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import pw_backend_api.application.MatriculaService;
 import pw_backend_api.application.representation.MatriculaRepresentation;
-import pw_backend_api.domain.Curso;
-import pw_backend_api.domain.Estudiante;
 import pw_backend_api.domain.Matricula;
-import pw_backend_api.infraestructure.CursoRepository;
-import pw_backend_api.infraestructure.EstudianteRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,58 +19,28 @@ import java.util.List;
 public class MatriculaResource {
 
     @Inject
-    EstudianteRepository estudianteRepository;
-
-    @Inject
-    CursoRepository cursoRepository;
+    MatriculaService matriculaService;
 
     @GET
     @Path("")
     @RolesAllowed("admin")
     public List<Matricula> listar() {
-        return Matricula.listAll();
+        return matriculaService.listarTodos();
     }
 
     @POST
     @RolesAllowed("admin")
     @Path("")
-    @Transactional
     public Response matricular(MatriculaRepresentation dto) {
-        if (dto.estudianteId == null || dto.cursoId == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Estudiante y Curso son requeridos").build();
-        }
-
-        Estudiante estudiante = estudianteRepository.findById(Long.valueOf(dto.estudianteId));
-        Curso curso = cursoRepository.findById(Long.valueOf(dto.cursoId));
-
-        if (estudiante == null || curso == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("Estudiante o Curso no encontrado").build();
-        }
-
-        Matricula matricula = new Matricula();
-        matricula.estudiante = estudiante;
-        matricula.curso = curso;
-        matricula.fecha = LocalDate.now();
-        matricula.estado = "ACTIVA";
-
-        matricula.persist();
-
+        Matricula matricula = matriculaService.matricular(dto);
         return Response.status(Response.Status.CREATED).entity(matricula).build();
     }
 
     @DELETE
     @Path("/{id}")
     @RolesAllowed("admin")
-    @Transactional
     public Response cancelarMatricula(@PathParam("id") Integer id) {
-        Matricula matricula = Matricula.findById(id);
-
-        if (matricula == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-
-        matricula.estado = "ANULADA";
-
+        Matricula matricula = matriculaService.cancelarMatricula(id);
         return Response.ok(matricula).build();
     }
 
@@ -81,7 +48,7 @@ public class MatriculaResource {
     @Path("/reporte")
     @RolesAllowed("admin")
     public List<Matricula> reporte() {
-        return Matricula.listAll();
+        return matriculaService.listarTodos();
     }
 
 }
